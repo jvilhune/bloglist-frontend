@@ -1,0 +1,47 @@
+h1 {
+  color: green;
+  font-style: italic;
+}
+
+h3 {
+  color: blue;
+  font-style: italic;
+}
+h4 {
+color: #000000;
+font-family: Arial;
+font-size: 8pt;
+font-style: italic;
+}
+
+.blog {
+  color: black;
+  padding-top: 5px;
+  font-size: 15px;
+}
+
+.blog {
+  color: grey;
+  padding-top: 5px;
+  font-size: 15px;
+}
+
+.error {
+  color: red;
+  background: lightgrey;
+  font-size: 20px;
+  border-style: solid;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.ok {
+  color: green;
+  background: lightgrey;
+  font-size: 20px;
+  border-style: solid;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+}

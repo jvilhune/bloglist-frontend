@@ -1,8 +1,16 @@
-# React + Vite
+Syväsukellus moderniin websovelluskehitykseen Full Stack open OSA 5. Tehtavat (5.1 - 5.4) eli osan 5a loppuun asti.
+https://fullstackopen.com/osa5
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+BACKEND-OHJELMISTO
+C:\Users\PC\bloglist
 
-Currently, two official plugins are available:
+FRONTEND-OHJELMISTO
+C:\Users\PC\bloglist-frontend
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+BACKEND-OHJELMISTON KAYNNISTYS
+C:\Users\PC\bloglist>npm run dev
+
+FRONTEND-OHJELMISTON KAYNNISTYS
+C:\Users\PC\bloglist-frontend>npm run dev
+-> NAYTOLLE TULOSTUU OSOITE, JOHON SELAIMELLA OTETAAN YHTEYS
+-> http://localhost:5173/
