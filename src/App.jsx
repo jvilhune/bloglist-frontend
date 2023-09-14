@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import Notification from './components/Notification'
 import Errnotification from './components/Errnotification'
@@ -21,11 +21,6 @@ const refresh = () => {
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [newTitle, setNewTitle] = useState('')
-  const [newAuthor, setNewAuthor] = useState('')
-  const [newUrl, setNewUrl] = useState('')
-  const [newLikes, setNewLikes] = useState('')
-
   const [errorMessage, setErrorMessage] = useState(null)
   const [okMessage, setOkMessage] = useState(null)
   const [username, setUsername] = useState('') 
@@ -48,24 +43,16 @@ const App = () => {
     }
   }, [])
 
-  const addBlog = (event) => {
-    event.preventDefault()
-    const blogObject = {
-      title: newTitle,
-      author: newAuthor,
-      url: newUrl,
-      likes: newLikes
-    }
-  
+  const blogFormRef = useRef()
+
+  const addBlog = (blogObject) => {
+    console.log('blogObject', blogObject)
+    blogFormRef.current.toggleVisibility()  
     blogService
       .create(blogObject)
         .then(returnedBlog => {
+        console.log('returnedBlog', returnedBlog)
         setBlogs(blogs.concat(returnedBlog))
-        setNewTitle('')
-        setNewAuthor('')
-        setNewUrl('')
-        setNewLikes('')
-
 	setOkMessage(
           `New blog '${returnedBlog.title}' was succesfully added to the bloglist`
         )
@@ -85,19 +72,37 @@ const App = () => {
       })
   }
 
-  const handleTitleChange = (event) => {
-    setNewTitle(event.target.value)
-  }
-  const handleAuthorChange = (event) => {
-    setNewAuthor(event.target.value)
-  }
-  const handleUrlChange = (event) => {
-    setNewUrl(event.target.value)
-  }
-  const handleLikesChange = (event) => {
-    setNewLikes(event.target.value)
-  }
+  const handledeleteClick = (blogid) => {
+    const blog = blogs.find(n => n.id === blogid)
 
+    if (window.confirm(`Delete ${blog.title}?`) === true) {
+      blogService
+      .delItem(blog.id)
+          .then(returnedlBlog => {
+          setBlogs(blogs.filter(n => n.id !== blogid))
+          console.log('blogid', blogid)
+          //timeout(1000)
+
+          setOkMessage(
+            `Blog '${blog.title}' was succesfully removed from the server`
+          )
+          setTimeout(() => {
+            setOkMessage(null)
+          }, 5000)
+
+        })
+        .catch(error => {
+          setErrorMessage(
+            `error : ${error.response.data.error} ${error.message}`
+          )
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 5000)
+
+          //setBlogs(blogs.filter(n => n.id !== blogid))
+       })
+    }
+  }
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -154,48 +159,10 @@ const App = () => {
 
 
   const blogForm = () => (
-  <Togglable buttonLabel="new blog">
-    <BlogForm
-      onSubmit={addBlog}
-      newTitle={newTitle} handleTitleChange={handleTitleChange}
-      newAuthor={newAuthor} handleAuthorChange={handleAuthorChange}
-      newUrl={newUrl} handleUrlChange={handleUrlChange}
-      newLikes={newLikes} handleLikesChange={handleLikesChange}
-    />
-  </Togglable>  
+  <Togglable buttonLabel="new blog" ref={blogFormRef} >
+    <BlogForm createBlog={addBlog} />
+  </Togglable>
   )
-
-  const handledeleteClick = (blogid) => {
-    const blog = blogs.find(n => n.id === blogid)
-
-    if (window.confirm(`Delete ${blog.title}?`) === true) {
-      blogService
-      .delItem(blog.id)
-          .then(returnedlBlog => {
-          setBlogs(blogs.filter(n => n.id !== blogid))
-          console.log('blogid', blogid)
-          //timeout(1000)
-
-          setOkMessage(
-            `Blog '${blog.title}' was succesfully removed from the server`
-          )
-          setTimeout(() => {
-            setOkMessage(null)
-          }, 5000)
-
-        })
-        .catch(error => {
-          setErrorMessage(
-            `error : ${error.response.data.error} ${error.message}`
-          )
-          setTimeout(() => {
-            setErrorMessage(null)
-          }, 5000)
-
-          //setBlogs(blogs.filter(n => n.id !== blogid))
-       })
-    }
-  }
 
   return (
     <div>
@@ -212,15 +179,19 @@ const App = () => {
 
         <h3>Create New</h3>
 
-          {blogForm()}
+        {blogForm()}
+          
         </div>
       }
 
       <h3>blogs</h3>
       <div>
+     
+
       {blogs.map(blog =>
         <Blog key={blog.id} blog={blog} butfunction = {handledeleteClick} />
       )}
+
       </div>
       <Footer />
     </div>

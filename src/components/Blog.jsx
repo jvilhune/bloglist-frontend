@@ -18,7 +18,7 @@ const Blog = ({ blog, butfunction }) => {
       <br/>
       {blog.author}
       <br/>
-      <a href="{blog.url}">{blog.url}</a>
+      <a href={blog.url}>{blog.url}</a>
       <br/>
       {blog.likes}
       <br/>
