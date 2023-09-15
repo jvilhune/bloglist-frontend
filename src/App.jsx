@@ -21,6 +21,9 @@ const refresh = () => {
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
+  const [viewBlogs, setViewBlogs] = useState([])
+  const [viewIndex, setViewIndex] = useState(0)
+  const [showAll, setShowAll] = useState(true)
   const [errorMessage, setErrorMessage] = useState(null)
   const [okMessage, setOkMessage] = useState(null)
   const [username, setUsername] = useState('') 
@@ -29,9 +32,26 @@ const App = () => {
   const [loginVisible, setLoginVisible] = useState(false)
 
   useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs( blogs )
-    )  
+    var a = 0
+    var vieObject = {
+      view: true,
+      blog_id: 0
+    }
+
+    blogService
+      .getAll()
+      .then(initialBlogs => {
+        setBlogs(initialBlogs)
+
+       for(a=0;a<initialBlogs.length;a++) {
+         var viewObject = {
+         view: true,
+         blog_id: initialBlogs[a].id
+         }
+         viewBlogs[a] = viewObject
+       }
+      })
+
   }, [])
 
   useEffect(() => {
@@ -45,14 +65,45 @@ const App = () => {
 
   const blogFormRef = useRef()
 
+
+  const handlelikesClick = id => {
+    const blog = blogs.find(n => n.id === id)
+    const changedBlog = { ...blog, likes: blog.likes+1 }
+
+    setShowAll(!showAll)
+    showAll ? 'hide' : 'view'
+  
+    blogService
+      .update(id, changedBlog)
+        .then(returnedBlog => {
+        setBlogs(blogs.map(blog => blog.id !== id ? blog : returnedBlog))        
+      })
+      .catch(error => {
+        setErrorMessage(
+          `Blog '${blog.title}' was already removed from server. ${error.message}`
+        )
+        setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
+      })
+  }
+
   const addBlog = (blogObject) => {
-    console.log('blogObject', blogObject)
+    var a = 0
     blogFormRef.current.toggleVisibility()  
     blogService
       .create(blogObject)
         .then(returnedBlog => {
-        console.log('returnedBlog', returnedBlog)
         setBlogs(blogs.concat(returnedBlog))
+
+       for(a=0;a<1;a++) {
+         var viewObject = {
+         view: true,
+         blog_id: returnedBlog.id
+         }
+         viewBlogs[viewBlogs.length] = viewObject
+       }
+
 	setOkMessage(
           `New blog '${returnedBlog.title}' was succesfully added to the bloglist`
         )
@@ -72,15 +123,45 @@ const App = () => {
       })
   }
 
+
+  const handleviewClick = (blogid) => {
+    var a = 0
+    var findIndex = 0
+    const blog = blogs.find(n => n.id === blogid)
+    const viewObject = viewBlogs.find(n => n.blog_id === blogid)
+
+    if(viewObject.view === true) {
+       viewObject.view = false
+    }
+    else if(viewObject.view === false) {
+       viewObject.view = true
+    }
+
+    var viewArrays = viewBlogs
+
+    for(a=0;a<blogs.length;a++)
+    {
+      if(viewBlogs[a].blog_id === blogid) {
+        viewArrays[a].view = viewObject.view
+        findIndex = a
+      }
+    }
+
+    setViewIndex(findIndex)
+    setViewBlogs(viewArrays)
+
+    setShowAll(!showAll)
+    showAll ? 'hide' : 'view'
+  }
+
+
   const handledeleteClick = (blogid) => {
     const blog = blogs.find(n => n.id === blogid)
-
     if (window.confirm(`Delete ${blog.title}?`) === true) {
       blogService
       .delItem(blog.id)
           .then(returnedlBlog => {
           setBlogs(blogs.filter(n => n.id !== blogid))
-          console.log('blogid', blogid)
           //timeout(1000)
 
           setOkMessage(
@@ -99,7 +180,7 @@ const App = () => {
             setErrorMessage(null)
           }, 5000)
 
-          //setBlogs(blogs.filter(n => n.id !== blogid))
+          setBlogs(blogs.filter(n => n.id !== blogid))
        })
     }
   }
@@ -157,7 +238,6 @@ const App = () => {
     )
   }
 
-
   const blogForm = () => (
   <Togglable buttonLabel="new blog" ref={blogFormRef} >
     <BlogForm createBlog={addBlog} />
@@ -166,7 +246,6 @@ const App = () => {
 
   return (
     <div>
-
       <Errnotification message={errorMessage} />
       <Oknotification message={okMessage} />
 
@@ -178,20 +257,24 @@ const App = () => {
         </p>
 
         <h3>Create New</h3>
-
         {blogForm()}
           
         </div>
       }
-
       <h3>blogs</h3>
       <div>
-     
-
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} butfunction = {handledeleteClick} />
+        <Blog          
+          key={blog.id}
+          blog={blog}
+          viewvals={viewBlogs}
+          blogview={viewBlogs[viewIndex].view}
+          butfunction = {handledeleteClick}
+          butfunction2 = {handleviewClick}
+          butfunction3={() => handlelikesClick(blog.id)}
+          update={showAll}
+        />
       )}
-
       </div>
       <Footer />
     </div>
