@@ -15,14 +15,10 @@ const BlogForm = ({ createBlog }) => {
       likes: newLikes
     })
 
-    console.log('newTitle', newTitle)
-    console.log('newAuthor', newAuthor)
-
     setNewTitle('')
     setNewAuthor('')
     setNewUrl('')
     setNewLikes('')
-
   }
 
 

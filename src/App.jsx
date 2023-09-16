@@ -28,7 +28,7 @@ const App = () => {
   const [okMessage, setOkMessage] = useState(null)
   const [username, setUsername] = useState('') 
   const [password, setPassword] = useState('')
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState("")
   const [loginVisible, setLoginVisible] = useState(false)
 
   useEffect(() => {
@@ -41,7 +41,13 @@ const App = () => {
     blogService
       .getAll()
       .then(initialBlogs => {
-        setBlogs(initialBlogs)
+
+       /*
+       initialBlogs.sort((firstItem, secondItem) => secondItem.likes - firstItem.likes);
+       console.log('initialBlogs', initialBlogs)
+       */
+
+       setBlogs(initialBlogs)
 
        for(a=0;a<initialBlogs.length;a++) {
          var viewObject = {
@@ -70,13 +76,31 @@ const App = () => {
     const blog = blogs.find(n => n.id === id)
     const changedBlog = { ...blog, likes: blog.likes+1 }
 
+    /*
+    console.log('blog.user.name', blog.user.name)    
+    console.log('changedBlog.user.name', changedBlog.user.name)
+    console.log('changedBlog.user.username', changedBlog.user.username)
+    console.log('changedBlog.user.id', changedBlog.user.id)
+    console.log('changedBlog.user', changedBlog.user)
+    console.log('user', user)
+    */
+    
+
     setShowAll(!showAll)
     showAll ? 'hide' : 'view'
   
     blogService
       .update(id, changedBlog)
         .then(returnedBlog => {
-        setBlogs(blogs.map(blog => blog.id !== id ? blog : returnedBlog))        
+
+        /*
+        console.log('returnedBlog.user.username', returnedBlog.user.username)
+        console.log('returnedBlog.user.name', returnedBlog.user.name)
+        console.log('returnedBlog.user.id', returnedBlog.user.id)
+        console.log('returnedBlog.user', returnedBlog.user)
+        */
+
+        setBlogs(blogs.map(blog => blog.id !== id ? blog : changedBlog))        
       })
       .catch(error => {
         setErrorMessage(
@@ -90,11 +114,20 @@ const App = () => {
 
   const addBlog = (blogObject) => {
     var a = 0
-    blogFormRef.current.toggleVisibility()  
+    blogFormRef.current.toggleVisibility()
+
     blogService
       .create(blogObject)
         .then(returnedBlog => {
-        setBlogs(blogs.concat(returnedBlog))
+
+       const blogsave = blogs.find(n => n.user.id === returnedBlog.user)
+       var varuserObject = {
+         id: blogsave.user.id,
+         username: blogsave.user.username,
+         name: blogsave.user.name
+       }
+       returnedBlog.user = varuserObject
+       setBlogs(blogs.concat(returnedBlog))
 
        for(a=0;a<1;a++) {
          var viewObject = {
@@ -103,6 +136,14 @@ const App = () => {
          }
          viewBlogs[viewBlogs.length] = viewObject
        }
+
+       /*
+       console.log('blogObject', blogObject)
+       console.log('returnedBlog', returnedBlog)
+       console.log('blogsave', blogsave)
+       console.log('returnedBlog', returnedBlog)
+       console.log('blogs', blogs)
+       */
 
 	setOkMessage(
           `New blog '${returnedBlog.title}' was succesfully added to the bloglist`
@@ -244,8 +285,13 @@ const App = () => {
   </Togglable>
   )
 
+  const blogstoOrder = blogs
+    blogs.sort((firstItem, secondItem) => secondItem.likes - firstItem.likes)
+
   return (
     <div>
+      <h3>BLOG LIST</h3>
+
       <Errnotification message={errorMessage} />
       <Oknotification message={okMessage} />
 
@@ -255,20 +301,20 @@ const App = () => {
         {user.name} logged in&nbsp;
         <button onClick={refresh}>logout</button>
         </p>
-
-        <h3>Create New</h3>
-        {blogForm()}
-          
+        <h3>Create New Blog</h3>
+        {blogForm()}          
         </div>
       }
-      <h3>blogs</h3>
+      <h3>Blogs</h3>
       <div>
-      {blogs.map(blog =>
+      {blogstoOrder.map(blog =>
         <Blog          
           key={blog.id}
           blog={blog}
+          username={user.username}
           viewvals={viewBlogs}
           blogview={viewBlogs[viewIndex].view}
+          loggedin={loginVisible}
           butfunction = {handledeleteClick}
           butfunction2 = {handleviewClick}
           butfunction3={() => handlelikesClick(blog.id)}
