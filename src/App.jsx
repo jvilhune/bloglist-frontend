@@ -116,16 +116,22 @@ const App = () => {
     var a = 0
     blogFormRef.current.toggleVisibility()
 
+    /*
+    console.log('user.username', user.username)
+    console.log('user.name', user.name)
+    console.log('user', user)
+    */
+
     blogService
       .create(blogObject)
         .then(returnedBlog => {
 
-       const blogsave = blogs.find(n => n.user.id === returnedBlog.user)
        var varuserObject = {
-         id: blogsave.user.id,
-         username: blogsave.user.username,
-         name: blogsave.user.name
+         id: returnedBlog.user,
+         username: user.username,
+         name: user.name
        }
+
        returnedBlog.user = varuserObject
        setBlogs(blogs.concat(returnedBlog))
 
@@ -228,6 +234,7 @@ const App = () => {
 
   const handleLogin = async (event) => {
     event.preventDefault()
+
     try {
       const user = await loginService.login({
         username, password,
@@ -240,7 +247,6 @@ const App = () => {
       setUser(user)
       setUsername('')
       setPassword('')
-
       setOkMessage(
         `User '${user.username}' was succesfully login`
         )
