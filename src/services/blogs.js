@@ -11,9 +11,9 @@ import axios from 'axios'
 //C:\Users\PC\bloglist-frontend> npm run dev
 //http://localhost:5173/
 
-const baseUrl = 'http://localhost:3001/api/blogs'
+//const baseUrl = 'http://localhost:3001/api/blogs'
 
-//const baseUrl = '/api/blogs'
+const baseUrl = '/api/blogs'
 
 
 let token = null
